@@ -22,7 +22,7 @@ while true; do
     response+="Content-Type: text/html\r\n"
     response+="Connection: close\r\n"
     response+="\r\n"
-    response+="<html><body><h1>Hello World!</h1></body></html>\r\n"
+    response+="<html><body><h1>Hellow World!</h1></body></html>\r\n"
 
     # Отправляем ответ клиенту
     echo -e "$response"
