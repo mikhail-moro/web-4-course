@@ -2,7 +2,6 @@ FROM ubuntu:latest
 WORKDIR /app
 COPY . .
 
-RUN apt-get update && apt-get install netcat-traditional
-RUN chmod +x ./echo.sh
+RUN apt-get update && apt-get install -y php-cli
 
-CMD ["./echo.sh"]
+CMD ["php", "example-php.php"]
