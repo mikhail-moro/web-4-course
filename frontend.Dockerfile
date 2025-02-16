@@ -20,4 +20,4 @@ RUN npm run build
 EXPOSE 8080
 
 # Запускаем сервер разработки
-CMD ["npm", "run", "serve"]
+CMD ["npm", "run", "dev"]
