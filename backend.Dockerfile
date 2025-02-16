@@ -18,11 +18,11 @@ COPY . /var/www/html
 WORKDIR /var/www/html
 
 # Устанавливаем зависимости Laravel
-RUN chmod -R 777 /var/www/html && \
-    composer install --optimize-autoloader --no-dev || echo "Composer install failed"
+RUN composer install --optimize-autoloader --no-dev
 
 # Настраиваем права доступа
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Включаем mod_rewrite для Apache
 RUN a2enmod rewrite
