@@ -27,7 +27,7 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 RUN a2enmod rewrite
 
 # Копируем конфигурацию Apache
-COPY .docker/apache.conf /etc/apache2/sites-available/000-default.conf
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
 # Открываем порт 80
 EXPOSE 80
