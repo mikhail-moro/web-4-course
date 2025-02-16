@@ -22,7 +22,7 @@ RUN composer install --optimize-autoloader --no-dev
 
 # Настраиваем права доступа
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
-    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Включаем mod_rewrite для Apache
 RUN a2enmod rewrite
