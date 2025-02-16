@@ -1,8 +1,12 @@
 # Используем официальный образ PHP с Apache
 FROM php:8.2-apache
 
-# Устанавливаем необходимые расширения PHP
-RUN docker-php-ext-install pdo_mysql
+# Устанавливаем необходимые системные зависимости
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libzip-dev \
+    && docker-php-ext-install zip
 
 # Устанавливаем Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
