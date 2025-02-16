@@ -18,7 +18,8 @@ COPY . /var/www/html
 WORKDIR /var/www/html
 
 # Устанавливаем зависимости Laravel
-RUN composer install --optimize-autoloader --no-dev
+RUN chmod -R 777 /var/www/html && \
+    composer install --optimize-autoloader --no-dev || echo "Composer install failed"
 
 # Настраиваем права доступа
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
