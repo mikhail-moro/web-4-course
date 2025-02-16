@@ -1,5 +1,5 @@
 # Используем официальный образ PHP с Apache
-FROM php:8.1-apache
+FROM php:8.2-apache
 
 # Устанавливаем необходимые расширения PHP
 RUN docker-php-ext-install pdo_mysql
