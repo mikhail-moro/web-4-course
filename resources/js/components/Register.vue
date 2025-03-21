@@ -5,10 +5,20 @@
         <form @submit.prevent="register">
             <input v-model="name" type="text" placeholder="Ваше Имя" required />
             <input v-model="email" type="email" placeholder="Email" required />
-            <input v-model="password" type="password" placeholder="Пароль" required />
+            <input 
+                v-model="password" 
+                type="password" 
+                placeholder="Пароль" 
+                required 
+                @input="validatePassword"
+            />
             <input v-model="confirmPassword" type="password" placeholder="Подтвердите пароль" required />
+            
+            <!-- Ошибки пароля -->
             <p v-if="passwordMismatch" class="error">Пароли не совпадают!</p>
-            <button class="register" type="submit" :disabled="passwordMismatch">Зарегистрироваться</button>
+            <p v-if="passwordError" class="error">{{ passwordError }}</p>
+
+            <button class="register" type="submit" :disabled="passwordMismatch || passwordError">Зарегистрироваться</button>
         </form>
     </div>
 </template>
@@ -21,6 +31,7 @@ export default {
             email: "",
             password: "",
             confirmPassword: "",
+            passwordError: "",
         };
     },
     computed: {
@@ -29,13 +40,25 @@ export default {
         },
     },
     methods: {
+        validatePassword() {
+            const specialChars = /[!@#$%^&*]/;
+            const uppercaseLetters = /[A-Z]/g;
+
+            if (this.password.length < 6) {
+                this.passwordError = "Пароль должен содержать минимум 6 символов";
+            } else if ((this.password.match(uppercaseLetters) || []).length < 2) {
+                this.passwordError = "Пароль должен содержать минимум 2 заглавные буквы";
+            } else if (!specialChars.test(this.password)) {
+                this.passwordError = "Пароль должен содержать хотя бы 1 специальный символ (!@#$%^&*)";
+            } else {
+                this.passwordError = "";
+            }
+        },
         register() {
-            if (this.passwordMismatch) {
-                alert("Пароли не совпадают!");
+            if (this.passwordMismatch || this.passwordError) {
                 return;
             }
 
-            // Отправка данных на сервер
             alert(`Пользователь ${this.name} зарегистрирован!`);
             this.$emit("close");
 
@@ -71,7 +94,7 @@ h2 {
     color: #f1c40f;
 }
 
-/* Стили для полей ввода */
+/* Поля ввода */
 input {
     width: 80%;
     padding: 12px;
@@ -89,13 +112,7 @@ input::placeholder {
     color: rgba(255, 255, 255, 0.6);
 }
 
-/* Эффект фокуса */
-input:focus {
-    border-color: #f1c40f;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* Ошибка паролей */
+/* Ошибки */
 .error {
     color: red;
     font-size: 14px;
