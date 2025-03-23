@@ -2,8 +2,7 @@
     <header class="header">
         <div class="logo">ÉLITE GASTRO</div>
         <nav>
-            <button class="auth-btn" @click="$emit('showRegister')">Регистрация</button>
-            <button class="auth-btn" @click="$emit('showLogin')">Вход</button>
+            <button class="auth-btn" @click="$emit('logout')">Выйти</button>
         </nav>
     </header>
 </template>
@@ -37,22 +36,6 @@ nav {
     margin-right: 100px;
 }
 
-button {
-    background-color: #d4af37;
-    color: black;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-    font-family: 'Playfair Display', serif;
-}
-
-button:hover {
-    background-color: rgba(213, 238, 28, 0.336);
-}
-
-/* Обновленный стиль кнопок */
 .auth-btn {
     background: transparent;
     color: #d4af37;

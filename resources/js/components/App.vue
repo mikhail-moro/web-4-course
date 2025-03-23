@@ -1,16 +1,21 @@
 <template>
   <div id="app">
-    <!-- Хедер -->
-    <Header @showRegister="showRegister = true" @showLogin="showLogin = true" />
+    <!-- Динамически меняем хедер -->
+    <component 
+      :is="currentHeader" 
+      @auth-changed="updateAuthStatus"
+      @logout="logout"
+      @showRegister="showRegister = true"
+      @showLogin="showLogin = true"
+    />
 
-    <!-- Главная страница -->
-    <LandingPage />
+    <router-view @auth-changed="updateAuthStatus" />
 
     <!-- Модальное окно регистрации -->
     <transition name="fade">
       <div v-if="showRegister" class="modal-overlay" @click="closeModals">
         <div class="modal-content" @click.stop>
-          <register-component @close="closeModals"></register-component>
+          <register-component @close="closeModals" @auth-changed="updateAuthStatus"></register-component>
         </div>
       </div>
     </transition>
@@ -19,12 +24,12 @@
     <transition name="fade">
       <div v-if="showLogin" class="modal-overlay" @click="closeModals">
         <div class="modal-content" @click.stop>
-          <login-component @close="closeModals"></login-component>
+          <login-component @close="closeModals" @auth-changed="updateAuthStatus"></login-component>
         </div>
       </div>
     </transition>
 
-    <AboutRestaurant />
+    <AboutRestaurant v-if="!isAuthenticated" />
     <Footer />
   </div>
 </template>
@@ -32,8 +37,8 @@
 <script>
 import Register from "./Register.vue";
 import Login from "./Login.vue";
-import Header from "./Header.vue";
-import LandingPage from "./LandingPage.vue";
+import HeaderBeforeAuth from "./HeaderBeforeAuth.vue";
+import HeaderAfterAuth from "./HeaderAfterAuth.vue";
 import AboutRestaurant from "./AboutRestaurant.vue";
 import Footer from "./Footer.vue";
 
@@ -41,8 +46,8 @@ export default {
   components: {
     "register-component": Register,
     "login-component": Login,
-    Header,
-    LandingPage,
+    HeaderBeforeAuth,
+    HeaderAfterAuth,
     AboutRestaurant,
     Footer,
   },
@@ -50,12 +55,25 @@ export default {
     return {
       showRegister: false,
       showLogin: false,
+      isAuthenticated: false,
     };
+  },
+  computed: {
+    currentHeader() {
+      return this.isAuthenticated ? "HeaderAfterAuth" : "HeaderBeforeAuth";
+    },
   },
   methods: {
     closeModals() {
       this.showRegister = false;
       this.showLogin = false;
+    },
+    updateAuthStatus(status) {
+      this.isAuthenticated = status;
+    },
+    logout() {
+      this.isAuthenticated = false;
+      this.$router.push("/login");
     },
   },
 };
@@ -73,6 +91,7 @@ body {
 }
 
 #app {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;

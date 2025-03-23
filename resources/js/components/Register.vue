@@ -5,20 +5,13 @@
         <form @submit.prevent="register">
             <input v-model="name" type="text" placeholder="Ваше Имя" required />
             <input v-model="email" type="email" placeholder="Email" required />
-            <input 
-                v-model="password" 
-                type="password" 
-                placeholder="Пароль" 
-                required 
-                @input="validatePassword"
-            />
+            <input v-model="password" type="password" placeholder="Пароль" required @input="validatePassword" />
             <input v-model="confirmPassword" type="password" placeholder="Подтвердите пароль" required />
             
-            <!-- Ошибки пароля -->
             <p v-if="passwordMismatch" class="error">Пароли не совпадают!</p>
             <p v-if="passwordError" class="error">{{ passwordError }}</p>
 
-            <button class="register" type="submit" :disabled="passwordMismatch || passwordError">Зарегистрироваться</button>
+            <button class="register" type="submit" :disabled="passwordMismatch || !!passwordError">Зарегистрироваться</button>
         </form>
     </div>
 </template>
@@ -51,22 +44,23 @@ export default {
             } else if (!specialChars.test(this.password)) {
                 this.passwordError = "Пароль должен содержать хотя бы 1 специальный символ (!@#$%^&*)";
             } else {
-                this.passwordError = "";
+                this.passwordError = ""; // Сбрасываем ошибку, если пароль правильный
             }
         },
+        
         register() {
-            if (this.passwordMismatch || this.passwordError) {
-                return;
+            if (!this.passwordMismatch && !this.passwordError) {
+                console.log('User registered:', this.email);
+
+                // Сообщаем `App.vue` об изменении авторизации
+                this.$emit("auth-changed", true);
+
+                // Закрываем модальное окно
+                this.$emit("close");
+
+                // После успешной регистрации - редирект
+                this.$router.push('/booking');
             }
-
-            alert(`Пользователь ${this.name} зарегистрирован!`);
-            this.$emit("close");
-
-            // Очищаем форму после успешной регистрации
-            this.name = "";
-            this.email = "";
-            this.password = "";
-            this.confirmPassword = "";
         },
     },
 };

@@ -83,11 +83,12 @@ p {
 .info-section {
     background: white;
     color: black;
-    padding: 50px 10%;
     display: flex;
     flex-direction: column;
     gap: 100px;
     width: 100vw;
+    padding-top: 50px;
+    padding-bottom: 50px;
 }
 
 .info-block {

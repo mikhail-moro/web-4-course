@@ -7,6 +7,7 @@
             <input v-model="password" type="password" placeholder="Пароль" required />
             <button class="login" type="submit">Войти</button>
         </form>
+        <p v-if="loginError" class="error">{{ loginError }}</p>
     </div>
 </template>
 
@@ -16,14 +17,22 @@ export default {
         return {
             email: "",
             password: "",
+            loginError: "",
         };
     },
     methods: {
         login() {
-            alert(`Добро пожаловать, ${this.email}!`);
+            // Здесь логика регистрации (например, API-запрос к бэкенду)
+            console.log('User registered:', this.email);
+
+            // Сообщаем `App.vue` об изменении авторизации
+            this.$emit("auth-changed", true);
+
+            // Закрываем модальное окно
             this.$emit("close");
-            this.email = "";
-            this.password = "";
+
+            // После успешной регистрации - редирект
+            this.$router.push('/booking');
         },
     },
 };
