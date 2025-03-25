@@ -2,6 +2,7 @@
     <header class="header">
         <div class="logo">ÉLITE GASTRO</div>
         <nav>
+            <button class="profile-btn" @click="$router.push('/profile')">Профиль</button>
             <button class="auth-btn" @click="$emit('logout')">Выйти</button>
         </nav>
     </header>
@@ -36,6 +37,26 @@ nav {
     margin-right: 100px;
 }
 
+/* Кнопка профиля */
+.profile-btn {
+    background: transparent;
+    color: #d4af37;
+    padding: 10px 20px;
+    border: 2px solid #d4af37;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'Playfair Display', serif;
+    transition: 0.3s;
+}
+
+.profile-btn:hover {
+    background: #d4af37;
+    color: black;
+}
+
+/* Кнопка выхода */
 .auth-btn {
     background: transparent;
     color: #d4af37;
@@ -47,5 +68,10 @@ nav {
     font-weight: bold;
     font-family: 'Playfair Display', serif;
     transition: 0.3s;
+}
+
+.auth-btn:hover {
+    background: #d4af37;
+    color: black;
 }
 </style>
