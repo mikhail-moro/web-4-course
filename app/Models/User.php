@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -18,11 +19,10 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'role_id',
         'name',
         'email',
         'password',
-        'role_id',
-        ''
     ];
 
     /**
@@ -32,8 +32,9 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
     ];
+
+    protected $table = "users";
 
     /**
      * Get the attributes that should be cast.
@@ -46,5 +47,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function reservations(): Relation
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    public function role(): Relation
+    {
+        return $this->belongsTo(Role::class);
     }
 }
