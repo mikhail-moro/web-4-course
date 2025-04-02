@@ -4,6 +4,8 @@ import Register from './components/Register.vue';
 import Login from './components/Login.vue';
 import router from './router'; // Подключаем маршрутизатор
 import Cookies from 'js-cookie';
+import axios from 'axios';
+const token = localStorage.getItem('auth_token');
 
 const app = createApp(App);
 

@@ -12,27 +12,43 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     data() {
         return {
-            email: "",
-            password: "",
-            loginError: "",
+            email: '',
+            password: '',
+            loginError: '',
         };
     },
     methods: {
-        login() {
-            // Здесь логика регистрации (например, API-запрос к бэкенду)
-            console.log('User registered:', this.email);
+        async login() {
+            try {
+                const response = await axios.post('http://127.0.0.1:8000/api/login', {
+                    email: this.email,
+                    password: this.password,
+                });
 
-            // Сообщаем `App.vue` об изменении авторизации
-            this.$emit("auth-changed", true);
+                const token = response.data.token;
+                const user = response.data.user;
 
-            // Закрываем модальное окно
-            this.$emit("close");
+                console.log('Авторизация прошла успешно:', user);
 
-            // После успешной регистрации - редирект
-            this.$router.push('/booking');
+                localStorage.setItem('auth_token', token);
+                localStorage.setItem('user_id', user.id);
+                localStorage.setItem('user_name', user.name);
+                localStorage.setItem('user_email', user.email);
+
+                this.$emit('auth-changed', true);
+
+                this.$emit('close');
+
+                this.$router.push('/booking');
+            } catch (error) {
+                this.loginError = 'Неверный email или пароль';
+                console.error('Ошибка входа:', error);
+            }
         },
     },
 };
@@ -48,8 +64,10 @@ export default {
     text-align: center;
     color: #b8860b;
     font-family: 'Playfair Display', serif;
-    background: rgba(25, 25, 25, 0.98); /* Чуть светлее, чтобы выделить форму */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Эффект объёма */
+    background: rgba(25, 25, 25, 0.98);
+    /* Чуть светлее, чтобы выделить форму */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    /* Эффект объёма */
 }
 
 /* Заголовок */
@@ -57,7 +75,8 @@ h2 {
     margin-bottom: 20px;
     font-size: 28px;
     font-weight: bold;
-    color: #f1c40f; /* Золотистый */
+    color: #f1c40f;
+    /* Золотистый */
 }
 
 /* Стили для полей ввода */

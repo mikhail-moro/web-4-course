@@ -41,6 +41,7 @@ import HeaderBeforeAuth from "./HeaderBeforeAuth.vue";
 import HeaderAfterAuth from "./HeaderAfterAuth.vue";
 import AboutRestaurant from "./AboutRestaurant.vue";
 import Footer from "./Footer.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -63,6 +64,14 @@ export default {
       return this.isAuthenticated ? "HeaderAfterAuth" : "HeaderBeforeAuth";
     },
   },
+  created() {
+    // Проверка токена при старте
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      this.isAuthenticated = true;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
+  },
   methods: {
     closeModals() {
       this.showRegister = false;
@@ -70,10 +79,17 @@ export default {
     },
     updateAuthStatus(status) {
       this.isAuthenticated = status;
+      const token = localStorage.getItem("auth_token");
+      if (status && token) {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      }
     },
     logout() {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user_id");
+      delete axios.defaults.headers.common["Authorization"];
       this.isAuthenticated = false;
-      this.$router.push("/login");
+      this.$router.push("/");
     },
   },
 };

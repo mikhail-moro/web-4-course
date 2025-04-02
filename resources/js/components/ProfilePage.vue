@@ -4,8 +4,8 @@
 
         <!-- Блок информации о пользователе -->
         <div class="profile-info">
-            <p><strong>Имя:</strong> Иван Иванов</p>
-            <p><strong>Email:</strong> ivan@example.com</p>
+            <p><strong>Имя:</strong> {{ user.name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
         </div>
 
         <h3>Мои бронирования</h3>
@@ -13,10 +13,9 @@
         <!-- Список забронированных столиков -->
         <div v-if="reservations.length > 0" class="reservations-list">
             <div v-for="reservation in reservations" :key="reservation.id" class="reservation-card">
-                <img :src="reservation.image" class="table-image" alt="Столик">
+                <img :src="reservation.image || '/stolik.jpg'" class="table-image" alt="Столик">
                 <div class="reservation-details">
-                    <h4>Столик №{{ reservation.id }}</h4>
-                    <p><strong>Мест:</strong> {{ reservation.seats }}</p>
+                    <h4>Столик №{{ reservation.table_number }}</h4>
                     <p><strong>Дата:</strong> {{ reservation.date }}</p>
                     <p><strong>Время:</strong> {{ reservation.time }}</p>
                     <div class="actions">
@@ -35,22 +34,43 @@
 export default {
     data() {
         return {
-            reservations: [
-                { id: 1, seats: 2, date: "2025-03-28", time: "19:00", image: "/stolik.jpg" },
-                { id: 3, seats: 4, date: "2025-03-29", time: "20:00", image: "/stolik.jpg" }
-            ]
+            user: {
+                name: localStorage.getItem('user_name') || 'Загрузка...',
+                email: localStorage.getItem('user_email') || 'Загрузка...'
+            },
+            reservations: []
         };
     },
     methods: {
+        async fetchReservations() {
+            const token = localStorage.getItem('auth_token');
+            const userId = localStorage.getItem('user_id');
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/reservations?user_id=${userId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                this.reservations = data;
+            } catch (error) {
+                console.error('Ошибка загрузки бронирований:', error);
+            }
+        },
         cancelReservation(id) {
             this.reservations = this.reservations.filter(res => res.id !== id);
         },
         editReservation(id) {
             alert(`Редактирование бронирования столика №${id}`);
         }
+    },
+    mounted() {
+        this.fetchReservations();
     }
 };
 </script>
+
 
 <style scoped>
 /* Основной контейнер */
@@ -66,7 +86,8 @@ export default {
 }
 
 /* Заголовки */
-h2, h3 {
+h2,
+h3 {
     color: black;
     font-weight: bold;
     margin-bottom: 15px;

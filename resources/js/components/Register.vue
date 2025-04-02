@@ -7,16 +7,19 @@
             <input v-model="email" type="email" placeholder="Email" required />
             <input v-model="password" type="password" placeholder="Пароль" required @input="validatePassword" />
             <input v-model="confirmPassword" type="password" placeholder="Подтвердите пароль" required />
-            
+
             <p v-if="passwordMismatch" class="error">Пароли не совпадают!</p>
             <p v-if="passwordError" class="error">{{ passwordError }}</p>
 
-            <button class="register" type="submit" :disabled="passwordMismatch || !!passwordError">Зарегистрироваться</button>
+            <button class="register" type="submit"
+                :disabled="passwordMismatch || !!passwordError">Зарегистрироваться</button>
         </form>
     </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     data() {
         return {
@@ -44,26 +47,39 @@ export default {
             } else if (!specialChars.test(this.password)) {
                 this.passwordError = "Пароль должен содержать хотя бы 1 специальный символ (!@#$%^&*)";
             } else {
-                this.passwordError = ""; // Сбрасываем ошибку, если пароль правильный
+                this.passwordError = "";
             }
         },
-        
-        register() {
+
+        async register() {
             if (!this.passwordMismatch && !this.passwordError) {
-                console.log('User registered:', this.email);
+                try {
+                    const response = await axios.post('http://127.0.0.1:8000/api/register', {
+                        name: this.name,
+                        email: this.email,
+                        password: this.password
+                    });
 
-                // Сообщаем `App.vue` об изменении авторизации
-                this.$emit("auth-changed", true);
+                    const user = response.data.user;
 
-                // Закрываем модальное окно
-                this.$emit("close");
+                    localStorage.setItem('user_id', user.id);
+                    localStorage.setItem('user_name', user.name);
+                    localStorage.setItem('user_email', user.email);
 
-                // После успешной регистрации - редирект
-                this.$router.push('/booking');
+                    console.log('Успешная регистрация:', user);
+
+                    this.$emit("auth-changed", true);
+                    this.$emit("close");
+                    this.$router.push('/booking');
+                } catch (error) {
+                    console.error('Ошибка при регистрации:', error.response?.data || error.message);
+                    alert("Ошибка при регистрации. Проверьте данные.");
+                }
             }
         },
     },
 };
+
 </script>
 
 <style scoped>
