@@ -35,16 +35,23 @@ export default {
 
                 console.log('Авторизация прошла успешно:', user);
 
+                // Сохраняем данные в localStorage
                 localStorage.setItem('auth_token', token);
                 localStorage.setItem('user_id', user.id);
                 localStorage.setItem('user_name', user.name);
                 localStorage.setItem('user_email', user.email);
+                localStorage.setItem('user_role', user.role_id); // сохраняем роль
 
                 this.$emit('auth-changed', true);
-
                 this.$emit('close');
 
-                this.$router.push('/booking');
+                // Перенаправление по роли
+                if (user.role_id === 1) {
+                    this.$router.push('/admin');
+                } else {
+                    this.$router.push('/booking');
+                }
+
             } catch (error) {
                 this.loginError = 'Неверный email или пароль';
                 console.error('Ошибка входа:', error);

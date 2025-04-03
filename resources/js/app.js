@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import App from './components/App.vue';
 import Register from './components/Register.vue';
 import Login from './components/Login.vue';
-import router from './router'; // Подключаем маршрутизатор
+import router from './router';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 const token = localStorage.getItem('auth_token');
