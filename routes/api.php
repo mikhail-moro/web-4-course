@@ -11,22 +11,21 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminTableController;
 use App\Http\Controllers\Admin\AdminReservationController;
 
-// API для получения всех бронирований
-Route::get('/reservations', [ReservationController::class, 'index']);
-
-// API для создания бронирования
-Route::post('/reservations', [ReservationController::class, 'store']);
-
-// API для удаления бронирования
-Route::delete('/reservations/{id}', [ReservationController::class, 'destroy']);
-
-
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
 
-Route::get('/user', function (Request $request) {
-    return response()->json(['user_id' => $request->auth_user_id]);
-})->middleware(AuthTokenMiddleware::class);
+Route::middleware([AuthTokenMiddleware::class])->group(function () {
+    Route::get('/user', function (Request $request) {
+        return response()->json(['user_id' => $request->auth_user_id]);
+    });
+
+    Route::get('/reservations', [ReservationController::class, 'index']);
+    Route::post('/reservations', [ReservationController::class, 'store']);
+    Route::post('/reservations/{id}', [ReservationController::class, 'update']);
+    Route::delete('/reservations/{id}', [ReservationController::class, 'destroy']);
+
+    Route::get('/confirm/{id}', [ReservationController::class, 'confirm']);
+});
 
 /*
 Route::middleware('auth.token')->get('/user', function (Request $request) {

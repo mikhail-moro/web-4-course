@@ -19,6 +19,8 @@ class AdminReservationController extends Controller
             'start' => 'required|date',
             'end' => 'required|date|after:start',
         ]);
+        $validated["confirmation_code"] = $validated["confirmation_code"] ?? Reservation::generateConfirmationCode();
+        $validated["confirmed"] = $validated["confirmed"] ?? false;
 
         $reservation = Reservation::create($validated);
 

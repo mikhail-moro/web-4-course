@@ -23,4 +23,10 @@ class Table extends Model
     {
         return $this->hasMany(Reservation::class);
     }
+
+    public static function hasNotEnoughSeats($tableId, int $guests): bool
+    {
+        $table = Table::query()->findOrFail($tableId);
+        return $table["seats"] < $guests;
+    }
 }
