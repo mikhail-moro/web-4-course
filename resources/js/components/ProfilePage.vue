@@ -47,7 +47,7 @@ export default {
         async fetchReservations() {
             const token = localStorage.getItem('auth_token');
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/reservations', {
+                const response = await fetch('/api/reservations', {
                     headers: {
                         Authorization: token,
                         'Content-Type': 'application/json'
@@ -68,7 +68,7 @@ export default {
         async cancelReservation(id) {
             const token = localStorage.getItem('auth_token');
             try {
-                await fetch(`http://127.0.0.1:8000/api/reservations/${id}`, {
+                await fetch(`/api/reservations/${id}`, {
                     method: 'DELETE',
                     headers: {
                         Authorization: token,

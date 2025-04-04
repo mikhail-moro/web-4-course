@@ -8,7 +8,7 @@ services:
     container_name: laravel_app
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "8000:8000"
     volumes:
       - .:/var/www/html
       - /var/www/html/vendor
@@ -24,12 +24,14 @@ services:
     container_name: vue_app
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "5173:5173"
     volumes:
       - ./resources/js:/app/resources/js
       - ./public:/app/public
     networks:
       - app-network
+    environment:
+      - VITE_HMR_EXTERNAL_HOST=1
 
 networks:
   app-network:

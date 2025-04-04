@@ -54,7 +54,7 @@ export default {
         async register() {
             if (!this.passwordMismatch && !this.passwordError) {
                 try {
-                    const response = await axios.post('http://127.0.0.1:8000/api/register', {
+                    const response = await axios.post('/api/register', {
                         name: this.name,
                         email: this.email,
                         password: this.password

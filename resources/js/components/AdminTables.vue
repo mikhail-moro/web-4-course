@@ -75,7 +75,7 @@ export default {
         },
         async fetchTables() {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/admin/tables', this.getAuthHeader());
+                const response = await axios.get('/api/admin/tables', this.getAuthHeader());
                 this.tables = response.data.data;
             } catch (error) {
                 console.error('Ошибка загрузки столиков:', error.response?.data || error.message);
@@ -83,7 +83,7 @@ export default {
         },
         async createTable() {
             try {
-                await axios.post('http://127.0.0.1:8000/api/admin/tables', this.newTable, this.getAuthHeader());
+                await axios.post('/api/admin/tables', this.newTable, this.getAuthHeader());
                 this.newTable = { number: '', seats: 0 };
                 this.fetchTables();
             } catch (error) {
@@ -92,7 +92,7 @@ export default {
         },
         async deleteTable(id) {
             try {
-                await axios.delete(`http://127.0.0.1:8000/api/admin/tables/${id}`, this.getAuthHeader());
+                await axios.delete(`/api/admin/tables/${id}`, this.getAuthHeader());
                 this.fetchTables();
             } catch (error) {
                 console.error('Ошибка удаления столика:', error.response?.data || error.message);
@@ -104,7 +104,7 @@ export default {
         },
         async saveTableEdit() {
             try {
-                await axios.patch(`http://127.0.0.1:8000/api/admin/tables/${this.editTableData.id}`, {
+                await axios.patch(`/api/admin/tables/${this.editTableData.id}`, {
                     number: this.editTableData.number,
                     seats: this.editTableData.seats
                 }, this.getAuthHeader());

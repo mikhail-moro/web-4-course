@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
+import ip from 'ip';
+
+const host = process.env.VITE_HMR_EXTERNAL_HOST ? ip.address() : 'localhost';
 
 export default defineConfig({
     plugins: [
@@ -10,4 +13,11 @@ export default defineConfig({
         }),
         vue(),
     ],
+    server: {
+        host: '0.0.0.0',
+        port: 5173,
+        hmr: {
+            host: host
+        }
+    }
 });

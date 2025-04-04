@@ -93,7 +93,7 @@ export default {
         },
         async fetchUsers() {
             try {
-                const res = await axios.get('http://127.0.0.1:8000/api/admin/users', this.getAuthHeader());
+                const res = await axios.get('/api/admin/users', this.getAuthHeader());
                 this.users = res.data.data;
             } catch (error) {
                 console.error('Ошибка загрузки пользователей:', error.response?.data || error.message);
@@ -116,7 +116,7 @@ export default {
         async register() {
             if (!this.passwordMismatch && !this.passwordError) {
                 try {
-                    const response = await axios.post('http://127.0.0.1:8000/api/register', {
+                    const response = await axios.post('/api/register', {
                         name: this.name,
                         email: this.email,
                         password: this.password
@@ -136,7 +136,7 @@ export default {
         },
         async deleteUser(id) {
             try {
-                await axios.delete(`http://127.0.0.1:8000/api/admin/users/${id}`, this.getAuthHeader());
+                await axios.delete(`/api/admin/users/${id}`, this.getAuthHeader());
                 this.fetchUsers();
             } catch (error) {
                 console.error('Ошибка удаления пользователя:', error.response?.data || error.message);
@@ -148,7 +148,7 @@ export default {
         },
         async saveUserEdit() {
             try {
-                await axios.patch(`http://127.0.0.1:8000/api/admin/users/${this.editUserData.id}`, {
+                await axios.patch(`/api/admin/users/${this.editUserData.id}`, {
                     name: this.editUserData.name,
                     email: this.editUserData.email,
                     role_id: this.editUserData.role_id

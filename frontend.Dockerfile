@@ -1,23 +1,15 @@
-# Используем официальный образ Node.js версии 18
-FROM node:18
+FROM node:22.14
 
-# Устанавливаем рабочий каталог
 WORKDIR /app
 
-# Копируем package.json и package-lock.json
-COPY package*.json ./
+COPY package.json ./
 
-# Устанавливаем зависимости
 RUN npm install
 
-# Копируем исходный код
 COPY . .
 
-# Собираем проект
 RUN npm run build
 
-# Открываем порт 8080
 EXPOSE 8080
 
-# Запускаем сервер разработки
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--", "--host=0.0.0.0"]

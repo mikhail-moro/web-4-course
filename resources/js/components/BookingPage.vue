@@ -67,7 +67,7 @@ export default {
                 const token = localStorage.getItem('auth_token');
 
                 const res = await fetch(
-                    `http://127.0.0.1:8000/api/tables?guests=${this.guestCount}&start=${start}&end=${end}`,
+                    `/api/tables?guests=${this.guestCount}&start=${start}&end=${end}`,
                     {
                         headers: {
                             Authorization: token
@@ -97,7 +97,7 @@ export default {
                     end: this.bookingEnd
                 };
 
-                const res = await fetch('http://127.0.0.1:8000/api/reservations', {
+                const res = await fetch('/api/reservations', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

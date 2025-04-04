@@ -89,7 +89,7 @@ export default {
         },
         async fetchReservations() {
             try {
-                const res = await axios.get('http://127.0.0.1:8000/api/admin/reservations', this.getAuthHeader());
+                const res = await axios.get('/api/admin/reservations', this.getAuthHeader());
                 this.reservations = res.data.data;
             } catch (e) {
                 console.error('Ошибка загрузки бронирований:', e.response?.data || e.message);
@@ -112,7 +112,7 @@ export default {
                     confirmed: true
                 };
 
-                await axios.post('http://127.0.0.1:8000/api/admin/reservations', payload, this.getAuthHeader());
+                await axios.post('/api/admin/reservations', payload, this.getAuthHeader());
 
                 this.newReservation = {
                     user_id: '',
@@ -129,7 +129,7 @@ export default {
         },
         async deleteReservation(id) {
             try {
-                await axios.delete(`http://127.0.0.1:8000/api/admin/reservations/${id}`, this.getAuthHeader());
+                await axios.delete(`/api/admin/reservations/${id}`, this.getAuthHeader());
                 this.fetchReservations();
             } catch (e) {
                 console.error('Ошибка удаления:', e.response?.data || e.message);
@@ -161,7 +161,7 @@ export default {
                     end: formattedEnd
                 };
 
-                await axios.patch(`http://127.0.0.1:8000/api/admin/reservations/${id}`, payload, this.getAuthHeader());
+                await axios.patch(`/api/admin/reservations/${id}`, payload, this.getAuthHeader());
                 this.isEditing = false;
                 this.fetchReservations();
             } catch (e) {
