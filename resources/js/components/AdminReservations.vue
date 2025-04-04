@@ -5,14 +5,11 @@
 
         <!-- Форма добавления -->
         <form @submit.prevent="createReservation" class="form-grid">
-            <input v-model.number="newReservation.user_id" type="number" placeholder="ID пользователя" class="input"
-                required />
-            <input v-model.number="newReservation.table_id" type="number" placeholder="ID столика" class="input"
-                required />
-            <input v-model="newReservation.date" type="date" class="input" required />
-            <input v-model="newReservation.time" type="time" class="input" required />
-            <input v-model.number="newReservation.guests" type="number" placeholder="Количество гостей" class="input"
-                required />
+            <input v-model.number="newReservation.user_id" type="number" placeholder="ID пользователя" class="input" required />
+            <input v-model.number="newReservation.table_id" type="number" placeholder="ID столика" class="input" required />
+            <input v-model="newReservation.start" type="datetime-local" class="input" required />
+            <input v-model="newReservation.end" type="datetime-local" class="input" required />
+            <input v-model.number="newReservation.guests" type="number" placeholder="Количество гостей" class="input" required />
             <button type="submit" class="btn full-span">Добавить бронирование</button>
         </form>
 
@@ -24,8 +21,8 @@
                     <p class="font-semibold">ID: {{ res.id }}</p>
                     <p class="text-sm text-gray-500">Пользователь: {{ res.user_id }} | Столик: {{ res.table_id }}</p>
                     <p class="text-sm">
-                        Дата: {{ res.start.split(' ')[0] }} |
-                        Время: {{ res.start.split(' ')[1].slice(0, 5) }}
+                        Начало: {{ res.start }}<br />
+                        Конец: {{ res.end }}
                     </p>
                 </div>
                 <div class="flex gap-2">
@@ -40,14 +37,11 @@
         <div v-if="isEditing" class="modal-overlay">
             <div class="modal">
                 <h3 class="modal-title">Редактировать бронирование</h3>
-                <input v-model.number="editReservationData.user_id" type="number" class="input"
-                    placeholder="ID пользователя" />
-                <input v-model.number="editReservationData.table_id" type="number" class="input"
-                    placeholder="ID столика" />
-                <input v-model="editReservationData.date" type="date" class="input" />
-                <input v-model="editReservationData.time" type="time" class="input" />
-                <input v-model.number="editReservationData.guests" type="number" class="input"
-                    placeholder="Количество гостей" />
+                <input v-model.number="editReservationData.user_id" type="number" class="input" placeholder="ID пользователя" />
+                <input v-model.number="editReservationData.table_id" type="number" class="input" placeholder="ID столика" />
+                <input v-model="editReservationData.start" type="datetime-local" class="input" />
+                <input v-model="editReservationData.end" type="datetime-local" class="input" />
+                <input v-model.number="editReservationData.guests" type="number" class="input" placeholder="Количество гостей" />
                 <div class="btn-group">
                     <button @click="saveReservationEdit" class="btn">Сохранить</button>
                     <button @click="isEditing = false" class="btn-secondary">Отмена</button>
@@ -69,16 +63,16 @@ export default {
                 user_id: '',
                 table_id: '',
                 guests: '',
-                date: '',
-                time: ''
+                start: '',
+                end: ''
             },
             editReservationData: {
                 id: null,
                 user_id: '',
                 table_id: '',
                 guests: '',
-                date: '',
-                time: ''
+                start: '',
+                end: ''
             },
             isEditing: false
         };
@@ -93,7 +87,6 @@ export default {
                 }
             };
         },
-
         async fetchReservations() {
             try {
                 const res = await axios.get('http://127.0.0.1:8000/api/admin/reservations', this.getAuthHeader());
@@ -102,28 +95,22 @@ export default {
                 console.error('Ошибка загрузки бронирований:', e.response?.data || e.message);
             }
         },
-
         async createReservation() {
             try {
-                const { user_id, table_id, guests, date, time } = this.newReservation;
+                const { user_id, table_id, guests, start, end } = this.newReservation;
 
-                const startDate = new Date(`${date}T${time}`);
-                const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000); // +2 часа
-
-                const start = startDate.toISOString().replace('T', ' ').slice(0, 19);
-                const end = endDate.toISOString().replace('T', ' ').slice(0, 19);
+                const formattedStart = new Date(start).toISOString().replace('T', ' ').slice(0, 19);
+                const formattedEnd = new Date(end).toISOString().replace('T', ' ').slice(0, 19);
 
                 const payload = {
                     user_id: Number(user_id),
                     table_id: Number(table_id),
                     guests: Number(guests),
-                    start,
-                    end,
+                    start: formattedStart,
+                    end: formattedEnd,
                     confirmation_code: `CONF-${Math.floor(Math.random() * 100000)}`,
                     confirmed: true
                 };
-
-                console.log("Отправляем бронирование:", payload);
 
                 await axios.post('http://127.0.0.1:8000/api/admin/reservations', payload, this.getAuthHeader());
 
@@ -131,8 +118,8 @@ export default {
                     user_id: '',
                     table_id: '',
                     guests: '',
-                    date: '',
-                    time: ''
+                    start: '',
+                    end: ''
                 };
 
                 this.fetchReservations();
@@ -140,7 +127,6 @@ export default {
                 console.error('Ошибка создания бронирования:', e.response?.data || e.message);
             }
         },
-
         async deleteReservation(id) {
             try {
                 await axios.delete(`http://127.0.0.1:8000/api/admin/reservations/${id}`, this.getAuthHeader());
@@ -149,37 +135,30 @@ export default {
                 console.error('Ошибка удаления:', e.response?.data || e.message);
             }
         },
-
         startEditing(res) {
-            const [date, timeWithSeconds] = res.start.split(' ');
-            const time = timeWithSeconds.slice(0, 5);
             this.editReservationData = {
                 id: res.id,
                 user_id: res.user_id,
                 table_id: res.table_id,
                 guests: res.guests,
-                date,
-                time
+                start: res.start.replace(' ', 'T'),
+                end: res.end.replace(' ', 'T')
             };
             this.isEditing = true;
         },
-
         async saveReservationEdit() {
             try {
-                const { id, user_id, table_id, guests, date, time } = this.editReservationData;
+                const { id, user_id, table_id, guests, start, end } = this.editReservationData;
 
-                const startDate = new Date(`${date}T${time}`);
-                const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-
-                const start = startDate.toISOString().replace('T', ' ').slice(0, 19);
-                const end = endDate.toISOString().replace('T', ' ').slice(0, 19);
+                const formattedStart = new Date(start).toISOString().replace('T', ' ').slice(0, 19);
+                const formattedEnd = new Date(end).toISOString().replace('T', ' ').slice(0, 19);
 
                 const payload = {
                     user_id: Number(user_id),
                     table_id: Number(table_id),
                     guests: Number(guests),
-                    start,
-                    end
+                    start: formattedStart,
+                    end: formattedEnd
                 };
 
                 await axios.patch(`http://127.0.0.1:8000/api/admin/reservations/${id}`, payload, this.getAuthHeader());
@@ -195,7 +174,6 @@ export default {
     }
 };
 </script>
-
 
 <style scoped>
 .admin-reservations {
