@@ -29,4 +29,14 @@ class Table extends Model
         $table = Table::query()->findOrFail($tableId);
         return $table["seats"] < $guests;
     }
+
+    public static function findTables(int $guests, string $start, string $end)
+    {
+        return Table::query()->whereNotIn('id', function($query) use ($start, $end) {
+            $query->select('table_id')
+                ->from('reservations')
+                ->where('end', '>', $start)
+                ->where('start', '<', $end);
+        })->where("seats", ">=", $guests)->get();
+    }
 }

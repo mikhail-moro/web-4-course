@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\TableController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\AuthTokenMiddleware;
 use Illuminate\Http\Request;
@@ -19,12 +20,14 @@ Route::middleware([AuthTokenMiddleware::class])->group(function () {
         return response()->json(['user_id' => $request->auth_user_id]);
     });
 
-    Route::get('/reservations', [ReservationController::class, 'index']);
     Route::post('/reservations', [ReservationController::class, 'store']);
+    Route::get('/reservations', [ReservationController::class, 'index']);
     Route::patch('/reservations/{id}', [ReservationController::class, 'update']);
     Route::delete('/reservations/{id}', [ReservationController::class, 'destroy']);
 
     Route::post('/confirm/{id}', [ReservationController::class, 'confirm']);
+
+    Route::get('/tables', TableController::class);
 });
 
 /*
