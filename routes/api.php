@@ -1,15 +1,15 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminReservationController;
+use App\Http\Controllers\Admin\AdminTableController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ReservationController;
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\AuthTokenMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ReservationController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\LoginController;
-use App\Http\Middleware\AuthTokenMiddleware;
-use App\Http\Middleware\AdminMiddleware;
-use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Admin\AdminTableController;
-use App\Http\Controllers\Admin\AdminReservationController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
@@ -21,10 +21,10 @@ Route::middleware([AuthTokenMiddleware::class])->group(function () {
 
     Route::get('/reservations', [ReservationController::class, 'index']);
     Route::post('/reservations', [ReservationController::class, 'store']);
-    Route::post('/reservations/{id}', [ReservationController::class, 'update']);
+    Route::patch('/reservations/{id}', [ReservationController::class, 'update']);
     Route::delete('/reservations/{id}', [ReservationController::class, 'destroy']);
 
-    Route::get('/confirm/{id}', [ReservationController::class, 'confirm']);
+    Route::post('/confirm/{id}', [ReservationController::class, 'confirm']);
 });
 
 /*

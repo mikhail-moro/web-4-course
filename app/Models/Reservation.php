@@ -37,12 +37,15 @@ class Reservation extends Model
         return (string) rand(1000, 9999);
     }
 
-    public static function hasOverlappingReservations(int $tableId, string $start, string $end): bool
+    public static function hasOverlappingReservations(int $tableId, string $start, string $end, ?int $excludeId = null): bool
     {
         $query = Reservation::query()
             ->where('table_id', "=", $tableId)
-            ->where("start", "<=", $end)
-            ->where("end", ">=", $start);
+            ->where("start", "<", $end)
+            ->where("end", ">", $start);
+        if ($excludeId !== null) {
+            $query = $query->where("id", "!=", $excludeId);
+        }
         return $query->exists();
     }
 }

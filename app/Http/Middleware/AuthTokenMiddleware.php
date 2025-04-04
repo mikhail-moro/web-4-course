@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthTokenMiddleware
@@ -40,6 +42,9 @@ class AuthTokenMiddleware
 
         // Добавляем user_id в request
         $request->merge(['auth_user_id' => (int) $userId]);
+
+        // Добавляем user'а в сессию
+        Auth::setUser(User::query()->findOrFail($userId));
 
         return $next($request);
     }
