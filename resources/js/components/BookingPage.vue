@@ -26,12 +26,8 @@
 
         <!-- Карточки столиков -->
         <div v-if="showTables" class="tables-container">
-            <div 
-                v-for="table in tables" 
-                :key="table.id" 
-                class="table-card"
-                :class="{ 'reserved-shadow': table.reserved, 'available-shadow': !table.reserved }"
-            >
+            <div v-for="table in tables" :key="table.id" class="table-card"
+                :class="{ 'reserved-shadow': table.reserved, 'available-shadow': !table.reserved }">
                 <img :src="table.image" class="table-image" alt="Столик">
                 <div class="table-info">
                     <h3>Столик №{{ table.id }}</h3>
@@ -51,29 +47,81 @@ export default {
             bookingTime: '',
             guestCount: 2,
             showTables: false,
-            tables: [
-                { id: 1, seats: 2, reserved: false, image: '/stolik.jpg' },
-                { id: 2, seats: 4, reserved: true, image: '/stolik.jpg' },
-                { id: 3, seats: 6, reserved: false, image: '/stolik.jpg' },
-                { id: 4, seats: 2, reserved: true, image: '/stolik.jpg' },
-                { id: 5, seats: 8, reserved: false, image: '/stolik.jpg' },
-                { id: 6, seats: 4, reserved: false, image: '/stolik.jpg' }
-            ],
+            tables: [],
+            bookingStart: '',
+            bookingEnd: ''
         };
     },
     methods: {
-        submitBooking() {
-            this.showTables = true;
+        async submitBooking() {
+            try {
+                const startDate = new Date(`${this.bookingDate}T${this.bookingTime}`);
+                const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+
+                const start = startDate.toISOString().replace('T', ' ').slice(0, 19);
+                const end = endDate.toISOString().replace('T', ' ').slice(0, 19);
+
+                this.bookingStart = start;
+                this.bookingEnd = end;
+
+                const token = localStorage.getItem('auth_token');
+
+                const res = await fetch(
+                    `http://127.0.0.1:8000/api/tables?guests=${this.guestCount}&start=${start}&end=${end}`,
+                    {
+                        headers: {
+                            Authorization: token
+                        }
+                    }
+                );
+
+                if (!res.ok) throw new Error('Ошибка при загрузке столиков');
+                this.tables = await res.json();
+                this.showTables = true;
+            } catch (e) {
+                console.error('Ошибка получения столиков:', e);
+                alert('Не удалось загрузить столики');
+            }
         },
-        reserveTable(table) {
-            if (!table.reserved) {
-                alert(`Вы забронировали столик №${table.id}`);
+
+        async reserveTable(table) {
+            if (table.reserved) return;
+
+            try {
+                const token = localStorage.getItem('auth_token');
+
+                const payload = {
+                    table_id: table.id,
+                    guests: this.guestCount,
+                    start: this.bookingStart,
+                    end: this.bookingEnd
+                };
+
+                const res = await fetch('http://127.0.0.1:8000/api/reservations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: token
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.message || 'Ошибка бронирования');
+                }
+
+                alert(`Столик №${table.id} успешно забронирован!`);
                 table.reserved = true;
+            } catch (e) {
+                console.error('Ошибка при бронировании:', e);
+                alert('Не удалось забронировать столик');
             }
         }
     }
 };
 </script>
+
 
 <style scoped>
 .booking-container {
@@ -124,7 +172,8 @@ h2 {
     margin-right: 5px;
 }
 
-input, select {
+input,
+select {
     border: none;
     background: transparent;
     font-size: 14px;

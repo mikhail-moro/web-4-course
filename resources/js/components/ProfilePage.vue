@@ -13,11 +13,13 @@
         <!-- Список забронированных столиков -->
         <div v-if="reservations.length > 0" class="reservations-list">
             <div v-for="reservation in reservations" :key="reservation.id" class="reservation-card">
-                <img :src="reservation.image || '/stolik.jpg'" class="table-image" alt="Столик">
+                <img :src="'/stolik.jpg'" class="table-image" alt="Столик">
                 <div class="reservation-details">
-                    <h4>Столик №{{ reservation.table_number }}</h4>
-                    <p><strong>Дата:</strong> {{ reservation.date }}</p>
-                    <p><strong>Время:</strong> {{ reservation.time }}</p>
+                    <h4>Столик №{{ reservation.table_id }}</h4>
+                    <p><strong>Дата:</strong> {{ formatDate(reservation.start) }}</p>
+                    <p><strong>Время:</strong> {{ formatTime(reservation.start) }} – {{ formatTime(reservation.end) }}</p>
+                    <p><strong>Гостей:</strong> {{ reservation.guests }}</p>
+                    <p><strong>Статус:</strong> {{ reservation.confirmed ? 'Подтверждено' : 'Ожидает подтверждения' }}</p>
                     <div class="actions">
                         <button class="edit-btn" @click="editReservation(reservation.id)">Редактировать</button>
                         <button class="cancel-btn" @click="cancelReservation(reservation.id)">Отменить</button>
@@ -44,22 +46,39 @@ export default {
     methods: {
         async fetchReservations() {
             const token = localStorage.getItem('auth_token');
-            const userId = localStorage.getItem('user_id');
             try {
-                const response = await fetch(`http://127.0.0.1:8000/api/reservations?user_id=${userId}`, {
+                const response = await fetch('http://127.0.0.1:8000/api/reservations', {
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization: token,
                         'Content-Type': 'application/json'
                     }
                 });
                 const data = await response.json();
-                this.reservations = data;
+                this.reservations = data.data || data; // поддержка paginate и простого списка
             } catch (error) {
                 console.error('Ошибка загрузки бронирований:', error);
             }
         },
-        cancelReservation(id) {
-            this.reservations = this.reservations.filter(res => res.id !== id);
+        formatDate(datetime) {
+            return datetime.split(' ')[0];
+        },
+        formatTime(datetime) {
+            return datetime.split(' ')[1].slice(0, 5);
+        },
+        async cancelReservation(id) {
+            const token = localStorage.getItem('auth_token');
+            try {
+                await fetch(`http://127.0.0.1:8000/api/reservations/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                this.reservations = this.reservations.filter(res => res.id !== id);
+            } catch (e) {
+                console.error('Ошибка отмены бронирования:', e);
+            }
         },
         editReservation(id) {
             alert(`Редактирование бронирования столика №${id}`);
@@ -70,7 +89,6 @@ export default {
     }
 };
 </script>
-
 
 <style scoped>
 /* Основной контейнер */

@@ -3,6 +3,7 @@
         <div class="logo">ÉLITE GASTRO</div>
         <nav>
             <button class="profile-btn" @click="$router.push('/profile')">Профиль</button>
+            <button class="booking-btn" @click="$router.push('/booking')">Забронировать столик</button>
 
             <!-- Кнопка для админа -->
             <button
@@ -67,7 +68,9 @@ nav {
 }
 
 /* Кнопка профиля */
-.profile-btn, .admin-btn {
+.profile-btn,
+.admin-btn,
+.booking-btn {
     background: transparent;
     color: #d4af37;
     padding: 10px 20px;
@@ -80,7 +83,9 @@ nav {
     transition: 0.3s;
 }
 
-.profile-btn:hover {
+.profile-btn:hover,
+.admin-btn:hover,
+.booking-btn:hover {
     background: #d4af37;
     color: black;
 }
