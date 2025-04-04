@@ -3,10 +3,39 @@
         <div class="logo">ÉLITE GASTRO</div>
         <nav>
             <button class="profile-btn" @click="$router.push('/profile')">Профиль</button>
+
+            <!-- Кнопка для админа -->
+            <button
+                v-if="isAdmin"
+                class="admin-btn"
+                @click="goToAdminPanel"
+            >
+                Панель админа
+            </button>
+
             <button class="auth-btn" @click="$emit('logout')">Выйти</button>
         </nav>
     </header>
 </template>
+
+<script>
+export default {
+    data() {
+        return {
+            isAdmin: false,
+        };
+    },
+    mounted() {
+        const role = localStorage.getItem('user_role');
+        this.isAdmin = Number(role) === 1;
+    },
+    methods: {
+        goToAdminPanel() {
+            window.location.href = 'http://127.0.0.1:8000/admin';
+        },
+    },
+};
+</script>
 
 <style scoped>
 .header {
@@ -38,7 +67,7 @@ nav {
 }
 
 /* Кнопка профиля */
-.profile-btn {
+.profile-btn, .admin-btn {
     background: transparent;
     color: #d4af37;
     padding: 10px 20px;
