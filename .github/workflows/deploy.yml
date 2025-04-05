@@ -24,9 +24,10 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
             cd ${{ secrets.VPS_PROJECT_DIR }} &&
             echo '${{ secrets.ENV }}' > .env &&
+            export VITE_HMR_EXTERNAL_HOST=${{ secrets.VPS_HOST }} &&
             git config --global --add safe.directory ${{ secrets.VPS_PROJECT_DIR }} &&
             git fetch --all &&
             git reset --hard origin/main &&
             docker compose down &&
-            docker compose up -d --build
+            COMPOSE_BAKE=true docker compose up -d --build
           "
