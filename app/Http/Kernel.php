@@ -2,11 +2,13 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\ResourcesCorsMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
     protected $middleware = [
+        ResourcesCorsMiddleware::class,
         \Illuminate\Http\Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
         \Illuminate\Foundation\Http\Middleware\TransformsRequest::class,
