@@ -22,6 +22,7 @@ class ReservationController extends Controller
             'start' => 'required|date',
             'end' => 'required|date|after:start',
         ]);
+
         $validated["confirmation_code"] = Reservation::generateConfirmationCode();
         $validated["confirmed"] = false;
         $validated["user_id"] = Auth::id();
@@ -29,15 +30,17 @@ class ReservationController extends Controller
         if (Table::hasNotEnoughSeats($validated["table_id"], $validated["guests"])) {
             throw ValidationException::withMessages(["guests" => "Недостаточно мест."]);
         }
+
         if (Reservation::hasOverlappingReservations($validated["table_id"], $validated["start"], $validated["end"])) {
             throw ValidationException::withMessages([
-                "start" => "Столик на это время занят.", "end" => "Столик на это время занят."
+                "start" => "Столик на это время занят.",
+                "end" => "Столик на это время занят."
             ]);
         }
 
         $reservation = Reservation::create($validated);
-        $email = User::findOrFail($validated["user_id"])["email"];
 
+        $email = User::findOrFail($validated["user_id"])["email"];
         Mail::to($email)->send(new Confirmation($validated["confirmation_code"]));
 
         return response()->json($reservation, 201);
@@ -46,7 +49,10 @@ class ReservationController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page', 1);
-        $reservations = Reservation::where("user_id", $request["auth_user_id"])->paginate(20, ['*'], 'page', $page);
+        $reservations = Reservation::with('table')
+            ->where('user_id', $request['auth_user_id'])
+            ->paginate(20, ['*'], 'page', $page);
+
         return response()->json($reservations);
     }
 
@@ -66,10 +72,11 @@ class ReservationController extends Controller
         }
 
         if (Reservation::hasOverlappingReservations(
-            $reservation["table_id"], $validated["start"],  $validated["end"], $reservation["id"]
+            $reservation["table_id"], $validated["start"], $validated["end"], $reservation["id"]
         )) {
             throw ValidationException::withMessages([
-                "start" => "Столик на это время занят.", "end" => "Столик на это время занят."
+                "start" => "Столик на это время занят.",
+                "end" => "Столик на это время занят."
             ]);
         }
 
@@ -91,6 +98,7 @@ class ReservationController extends Controller
         $validated = $request->validate([
             'confirmation_code' => 'integer|min:1000|max:9999',
         ]);
+
         $reservation = Reservation::findOrFail($id);
 
         if ($reservation["confirmation_code"] != $validated["confirmation_code"]) {

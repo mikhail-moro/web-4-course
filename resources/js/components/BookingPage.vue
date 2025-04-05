@@ -29,7 +29,7 @@
             <div v-if="tables.length > 0" class="tables-container">
                 <div v-for="table in tables" :key="table.id" class="table-card"
                     :class="{ 'reserved-shadow': table.reserved, 'available-shadow': !table.reserved }">
-                    <img :src="table.image" class="table-image" alt="Столик">
+                    <img :src="`/images/${table.image}`" class="table-image" alt="Столик">
                     <div class="table-info">
                         <h3>Столик №{{ table.id }}</h3>
                         <p>👥 {{ table.seats }} мест(а)</p>
@@ -39,7 +39,6 @@
             </div>
             <p v-else class="no-tables-message">К сожалению, подходящих столиков не найдено.</p>
         </div>
-
     </div>
 </template>
 
@@ -121,11 +120,14 @@ export default {
                 console.error('Ошибка при бронировании:', e);
                 alert('Не удалось забронировать столик');
             }
+        },
+
+        getTableImage(table) {
+            return table.image ? `/images/${table.image}` : '/stolik.jpg';
         }
     }
 };
 </script>
-
 
 <style scoped>
 .booking-container {
@@ -227,7 +229,6 @@ button {
 
 .table-image {
     width: 100%;
-    height: 140px;
     object-fit: cover;
 }
 

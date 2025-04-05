@@ -13,6 +13,7 @@ class AdminTableController extends Controller
         $validated = $request->validate([
             'number' => 'required|integer|unique:tables',
             'seats' => 'required|integer|min:1',
+            'image' => 'nullable|string|max:255', // добавлено
         ]);
 
         $table = Table::create($validated);
@@ -35,6 +36,7 @@ class AdminTableController extends Controller
         $validated = $request->validate([
             'number' => 'integer|unique:tables,number,' . $table->id,
             'seats' => 'integer|min:1',
+            'image' => 'nullable|string|max:255', // добавлено
         ]);
 
         $table->update($validated);

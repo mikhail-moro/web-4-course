@@ -7,6 +7,7 @@
         <form @submit.prevent="createTable" class="form-grid">
             <input v-model="newTable.number" type="text" placeholder="Номер столика" class="input" required />
             <input v-model.number="newTable.seats" type="number" placeholder="Количество мест" class="input" required />
+            <input v-model="newTable.image" type="text" placeholder="Название изображения (например, stolik1.png)" class="input" />
             <button type="submit" class="btn full-span">Добавить столик</button>
         </form>
 
@@ -18,6 +19,7 @@
                     <div>
                         <p class="font-semibold">Столик №{{ table.number }}</p>
                         <p class="text-sm text-gray-500">Мест: {{ table.seats }}</p>
+                        <p class="text-sm text-gray-500">Картинка: {{ table.image || '—' }}</p>
                     </div>
                     <div class="flex gap-2">
                         <button @click="startEditing(table)" class="btn-secondary">Редактировать</button>
@@ -34,6 +36,7 @@
                 <h3 class="modal-title">Редактировать столик</h3>
                 <input v-model="editTableData.number" class="input" type="text" placeholder="Номер столика" />
                 <input v-model.number="editTableData.seats" class="input" type="number" placeholder="Количество мест" />
+                <input v-model="editTableData.image" class="input" type="text" placeholder="Название изображения" />
                 <div class="btn-group">
                     <button @click="saveTableEdit" class="btn">Сохранить</button>
                     <button @click="isEditing = false" class="btn-secondary">Отмена</button>
@@ -53,12 +56,14 @@ export default {
             tables: [],
             newTable: {
                 number: '',
-                seats: 0
+                seats: 0,
+                image: ''
             },
             editTableData: {
                 id: null,
                 number: '',
-                seats: 0
+                seats: 0,
+                image: ''
             },
             isEditing: false
         };
@@ -84,7 +89,7 @@ export default {
         async createTable() {
             try {
                 await axios.post('/api/admin/tables', this.newTable, this.getAuthHeader());
-                this.newTable = { number: '', seats: 0 };
+                this.newTable = { number: '', seats: 0, image: '' };
                 this.fetchTables();
             } catch (error) {
                 console.error('Ошибка добавления столика:', error.response?.data || error.message);
@@ -106,7 +111,8 @@ export default {
             try {
                 await axios.patch(`/api/admin/tables/${this.editTableData.id}`, {
                     number: this.editTableData.number,
-                    seats: this.editTableData.seats
+                    seats: this.editTableData.seats,
+                    image: this.editTableData.image
                 }, this.getAuthHeader());
                 this.isEditing = false;
                 this.fetchTables();

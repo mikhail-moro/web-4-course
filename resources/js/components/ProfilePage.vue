@@ -2,6 +2,7 @@
     <div class="profile-container">
         <h2>Ваш профиль</h2>
 
+        <!-- Информация о пользователе -->
         <div class="profile-info">
             <p><strong>Имя:</strong> {{ user.name }}</p>
             <p><strong>Email:</strong> {{ user.email }}</p>
@@ -9,15 +10,18 @@
 
         <h3>Мои бронирования</h3>
 
+        <!-- Список бронирований -->
         <div v-if="reservations.length > 0" class="reservations-list">
             <div v-for="reservation in reservations" :key="reservation.id" class="reservation-card">
-                <img :src="'/stolik.jpg'" class="table-image" alt="Столик" />
+                <img :src="getTableImage(reservation)" class="table-image" alt="Столик" />
                 <div class="reservation-details">
-                    <h4>Столик №{{ reservation.table_id }}</h4>
+                    <h4>Столик №{{ reservation.table.number }}</h4>
                     <p><strong>Дата:</strong> {{ formatDate(reservation.start) }}</p>
-                    <p><strong>Время:</strong> {{ formatTime(reservation.start) }} – {{ formatTime(reservation.end) }}</p>
+                    <p><strong>Время:</strong> {{ formatTime(reservation.start) }} – {{ formatTime(reservation.end) }}
+                    </p>
                     <p><strong>Гостей:</strong> {{ reservation.guests }}</p>
-                    <p><strong>Статус:</strong> {{ reservation.confirmed ? 'Подтверждено' : 'Ожидает подтверждения' }}</p>
+                    <p><strong>Статус:</strong> {{ reservation.confirmed ? 'Подтверждено' : 'Ожидает подтверждения' }}
+                    </p>
                     <div class="actions">
                         <button class="edit-btn" @click="openEditModal(reservation)">Редактировать</button>
                         <button class="cancel-btn" @click="cancelReservation(reservation.id)">Отменить</button>
@@ -66,7 +70,7 @@ export default {
         async fetchReservations() {
             const token = localStorage.getItem("auth_token");
             try {
-                const response = await fetch("http://127.0.0.1:8000/api/reservations", {
+                const response = await fetch("/api/reservations", {
                     headers: {
                         Authorization: token,
                         "Content-Type": "application/json"
@@ -81,7 +85,7 @@ export default {
         async cancelReservation(id) {
             const token = localStorage.getItem("auth_token");
             try {
-                await fetch(`http://127.0.0.1:8000/api/reservations/${id}`, {
+                await fetch(`/api/reservations/${id}`, {
                     method: "DELETE",
                     headers: {
                         Authorization: token,
@@ -111,7 +115,7 @@ export default {
             };
 
             try {
-                const res = await fetch(`http://127.0.0.1:8000/api/reservations/${this.edit.id}`, {
+                const res = await fetch(`/api/reservations/${this.edit.id}`, {
                     method: "PATCH",
                     headers: {
                         Authorization: token,
@@ -122,11 +126,7 @@ export default {
 
                 if (!res.ok) {
                     const error = await res.json();
-                    if (error.errors?.guests?.[0]) {
-                        alert(`Ошибка: ${error.errors.guests[0]}`);
-                    } else {
-                        alert('Ошибка при обновлении бронирования');
-                    }
+                    alert(error?.errors?.guests?.[0] || 'Ошибка при обновлении');
                     return;
                 }
 
@@ -135,6 +135,9 @@ export default {
             } catch (e) {
                 console.error("Ошибка обновления:", e);
             }
+        },
+        getTableImage(reservation) {
+            return reservation.table?.image ? `/images/${reservation.table.image}` : '/stolik.png';
         },
         formatDate(datetime) {
             return datetime.split(" ")[0];
@@ -148,7 +151,7 @@ export default {
         },
         toMySQLFormat(datetimeLocal) {
             const date = new Date(datetimeLocal);
-            const pad = (n) => n.toString().padStart(2, "0");
+            const pad = n => n.toString().padStart(2, "0");
             return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
         }
     },
@@ -170,7 +173,8 @@ export default {
     text-align: center;
 }
 
-h2, h3 {
+h2,
+h3 {
     color: black;
     font-weight: bold;
     margin-bottom: 15px;
@@ -209,8 +213,8 @@ h2, h3 {
 }
 
 .table-image {
-    width: 120px;
-    height: 100px;
+    width: 360px;
+    height: 250px;
     object-fit: cover;
     border-radius: 8px;
 }
@@ -228,7 +232,8 @@ h2, h3 {
     margin-top: 10px;
 }
 
-.edit-btn, .cancel-btn {
+.edit-btn,
+.cancel-btn {
     padding: 8px 15px;
     border: none;
     border-radius: 30px;
