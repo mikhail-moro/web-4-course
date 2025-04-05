@@ -56,13 +56,19 @@ export default {
         };
     },
     methods: {
+        formatDateTimeLocal(date) {
+            const pad = n => n.toString().padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
+                   `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        },
+
         async submitBooking() {
             try {
                 const startDate = new Date(`${this.bookingDate}T${this.bookingTime}`);
-                const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+                const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000); // +2 часа
 
-                const start = startDate.toISOString().replace('T', ' ').slice(0, 19);
-                const end = endDate.toISOString().replace('T', ' ').slice(0, 19);
+                const start = this.formatDateTimeLocal(startDate);
+                const end = this.formatDateTimeLocal(endDate);
 
                 this.bookingStart = start;
                 this.bookingEnd = end;

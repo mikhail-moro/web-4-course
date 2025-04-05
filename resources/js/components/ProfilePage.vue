@@ -15,17 +15,24 @@
                 <div class="reservation-details">
                     <h4>Столик №{{ reservation.table.number }}</h4>
                     <p><strong>Дата:</strong> {{ formatDate(reservation.start) }}</p>
-                    <p><strong>Время:</strong> {{ formatTime(reservation.start) }} – {{ formatTime(reservation.end) }}</p>
+                    <p>
+                        <strong>Время:</strong>
+                        {{ formatTime(reservation.start) }} – {{ formatTime(reservation.end) }}
+                    </p>
                     <p><strong>Гостей:</strong> {{ reservation.guests }}</p>
-                    <p><strong>Статус:</strong> {{ reservation.confirmed ? '✅ Подтверждено' : '⏳ Ожидает подтверждения' }}</p>
+                    <p>
+                        <strong>Статус:</strong>
+                        {{ reservation.confirmed ? "✅ Подтверждено" : "⏳ Ожидает подтверждения" }}
+                    </p>
                     <div class="actions">
-                        <button class="edit-btn" @click="openEditModal(reservation)">Редактировать</button>
-                        <button class="cancel-btn" @click="cancelReservation(reservation.id)">Отменить</button>
-                        <button 
-                            v-if="!reservation.confirmed"
-                            class="confirm-btn" 
-                            @click="openConfirmModal(reservation.id)"
-                        >
+                        <button class="edit-btn" @click="openEditModal(reservation)">
+                            Редактировать
+                        </button>
+                        <button class="cancel-btn" @click="cancelReservation(reservation.id)">
+                            Отменить
+                        </button>
+                        <button v-if="!reservation.confirmed" class="confirm-btn"
+                            @click="openConfirmModal(reservation.id)">
                             Ввести код
                         </button>
                     </div>
@@ -33,7 +40,9 @@
             </div>
         </div>
 
-        <p v-else class="no-reservations">Вы пока не забронировали ни одного столика.</p>
+        <p v-else class="no-reservations">
+            Вы пока не забронировали ни одного столика.
+        </p>
 
         <!-- Модальное окно редактирования -->
         <div v-if="isEditing" class="modal-overlay">
@@ -69,19 +78,19 @@ export default {
         return {
             user: {
                 name: localStorage.getItem("user_name") || "Загрузка...",
-                email: localStorage.getItem("user_email") || "Загрузка..."
+                email: localStorage.getItem("user_email") || "Загрузка...",
             },
             reservations: [],
             isEditing: false,
             edit: {
                 id: null,
-                start: '',
-                end: '',
-                guests: 1
+                start: "",
+                end: "",
+                guests: 1,
             },
             isConfirming: false,
             confirmReservationId: null,
-            confirmCode: ''
+            confirmCode: "",
         };
     },
     methods: {
@@ -91,8 +100,8 @@ export default {
                 const response = await fetch("/api/reservations", {
                     headers: {
                         Authorization: token,
-                        "Content-Type": "application/json"
-                    }
+                        "Content-Type": "application/json",
+                    },
                 });
                 const data = await response.json();
                 this.reservations = data.data || data;
@@ -107,8 +116,8 @@ export default {
                     method: "DELETE",
                     headers: {
                         Authorization: token,
-                        "Content-Type": "application/json"
-                    }
+                        "Content-Type": "application/json",
+                    },
                 });
                 this.reservations = this.reservations.filter(res => res.id !== id);
             } catch (e) {
@@ -116,33 +125,44 @@ export default {
             }
         },
         openEditModal(reservation) {
+            const start = this.toInputDatetime(reservation.start);
+            const end = reservation.end
+                ? this.toInputDatetime(reservation.end)
+                : this.addHoursToDatetime(start, 2);
+
             this.edit = {
                 id: reservation.id,
                 guests: reservation.guests,
-                start: this.toInputDatetime(reservation.start),
-                end: this.toInputDatetime(reservation.end)
+                start,
+                end,
             };
             this.isEditing = true;
+        },
+        addHoursToDatetime(datetimeStr, hours) {
+            const date = new Date(datetimeStr);
+            date.setHours(date.getHours() + hours);
+            const pad = n => n.toString().padStart(2, "0");
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
         },
         async saveEdit() {
             const token = localStorage.getItem("auth_token");
             const payload = {
                 guests: this.edit.guests,
-                start: this.toMySQLFormat(this.edit.start),
-                end: this.toMySQLFormat(this.edit.end)
+                start: this.fixDatetimeLocalFormat(this.edit.start),
+                end: this.fixDatetimeLocalFormat(this.edit.end),
             };
             try {
                 const res = await fetch(`/api/reservations/${this.edit.id}`, {
                     method: "PATCH",
                     headers: {
                         Authorization: token,
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
                 });
                 if (!res.ok) {
                     const error = await res.json();
-                    alert(error?.errors?.guests?.[0] || 'Ошибка при обновлении');
+                    alert(error?.errors?.guests?.[0] || "Ошибка при обновлении");
                     return;
                 }
                 this.isEditing = false;
@@ -153,7 +173,7 @@ export default {
         },
         openConfirmModal(reservationId) {
             this.confirmReservationId = reservationId;
-            this.confirmCode = '';
+            this.confirmCode = "";
             this.isConfirming = true;
         },
         async submitConfirmCode() {
@@ -163,13 +183,13 @@ export default {
                     method: "POST",
                     headers: {
                         Authorization: token,
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ confirmation_code: this.confirmCode })
+                    body: JSON.stringify({ confirmation_code: this.confirmCode }),
                 });
                 if (!res.ok) {
                     const error = await res.json();
-                    alert(error?.message || 'Ошибка подтверждения');
+                    alert(error?.message || "Ошибка подтверждения");
                     return;
                 }
                 this.isConfirming = false;
@@ -179,27 +199,30 @@ export default {
             }
         },
         getTableImage(reservation) {
-            return reservation.table?.image ? `/images/${reservation.table.image}` : '/stolik.png';
+            return reservation.table?.image
+                ? `/images/${reservation.table.image}`
+                : "/stolik.png";
         },
         formatDate(datetime) {
+            if (!datetime) return "";
             return datetime.split(" ")[0];
         },
         formatTime(datetime) {
-            return datetime.split(" ")[1].slice(0, 5);
+            if (!datetime) return "";
+            return datetime.split(" ")[1]?.slice(0, 5) || "";
         },
         toInputDatetime(str) {
             const [date, time] = str.split(" ");
             return `${date}T${time.slice(0, 5)}`;
         },
-        toMySQLFormat(datetimeLocal) {
-            const date = new Date(datetimeLocal);
-            const pad = n => n.toString().padStart(2, "0");
-            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-        }
+        fixDatetimeLocalFormat(datetimeLocal) {
+            // "2025-05-01T21:16" => "2025-05-01 21:16:00"
+            return datetimeLocal.replace("T", " ") + ":00";
+        },
     },
     mounted() {
         this.fetchReservations();
-    }
+    },
 };
 </script>
 
