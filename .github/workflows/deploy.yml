@@ -29,5 +29,7 @@ jobs:
             git fetch --all &&
             git reset --hard origin/main &&
             docker compose down &&
+            docker compose stop &&
+            docker compose rm &&
             COMPOSE_BAKE=true docker compose up -d --build
           "
