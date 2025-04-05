@@ -2,7 +2,6 @@
     <div class="profile-container">
         <h2>Ваш профиль</h2>
 
-        <!-- Информация о пользователе -->
         <div class="profile-info">
             <p><strong>Имя:</strong> {{ user.name }}</p>
             <p><strong>Email:</strong> {{ user.email }}</p>
@@ -10,21 +9,25 @@
 
         <h3>Мои бронирования</h3>
 
-        <!-- Список бронирований -->
         <div v-if="reservations.length > 0" class="reservations-list">
             <div v-for="reservation in reservations" :key="reservation.id" class="reservation-card">
                 <img :src="getTableImage(reservation)" class="table-image" alt="Столик" />
                 <div class="reservation-details">
                     <h4>Столик №{{ reservation.table.number }}</h4>
                     <p><strong>Дата:</strong> {{ formatDate(reservation.start) }}</p>
-                    <p><strong>Время:</strong> {{ formatTime(reservation.start) }} – {{ formatTime(reservation.end) }}
-                    </p>
+                    <p><strong>Время:</strong> {{ formatTime(reservation.start) }} – {{ formatTime(reservation.end) }}</p>
                     <p><strong>Гостей:</strong> {{ reservation.guests }}</p>
-                    <p><strong>Статус:</strong> {{ reservation.confirmed ? 'Подтверждено' : 'Ожидает подтверждения' }}
-                    </p>
+                    <p><strong>Статус:</strong> {{ reservation.confirmed ? '✅ Подтверждено' : '⏳ Ожидает подтверждения' }}</p>
                     <div class="actions">
                         <button class="edit-btn" @click="openEditModal(reservation)">Редактировать</button>
                         <button class="cancel-btn" @click="cancelReservation(reservation.id)">Отменить</button>
+                        <button 
+                            v-if="!reservation.confirmed"
+                            class="confirm-btn" 
+                            @click="openConfirmModal(reservation.id)"
+                        >
+                            Ввести код
+                        </button>
                     </div>
                 </div>
             </div>
@@ -42,6 +45,18 @@
                 <div class="modal-actions">
                     <button @click="saveEdit">Сохранить</button>
                     <button @click="isEditing = false">Отмена</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно подтверждения -->
+        <div v-if="isConfirming" class="modal-overlay">
+            <div class="modal">
+                <h3>Подтверждение бронирования</h3>
+                <input v-model="confirmCode" type="text" placeholder="Введите код из письма" />
+                <div class="modal-actions">
+                    <button @click="submitConfirmCode">Подтвердить</button>
+                    <button @click="isConfirming = false">Отмена</button>
                 </div>
             </div>
         </div>
@@ -63,7 +78,10 @@ export default {
                 start: '',
                 end: '',
                 guests: 1
-            }
+            },
+            isConfirming: false,
+            confirmReservationId: null,
+            confirmCode: ''
         };
     },
     methods: {
@@ -113,7 +131,6 @@ export default {
                 start: this.toMySQLFormat(this.edit.start),
                 end: this.toMySQLFormat(this.edit.end)
             };
-
             try {
                 const res = await fetch(`/api/reservations/${this.edit.id}`, {
                     method: "PATCH",
@@ -123,17 +140,42 @@ export default {
                     },
                     body: JSON.stringify(payload)
                 });
-
                 if (!res.ok) {
                     const error = await res.json();
                     alert(error?.errors?.guests?.[0] || 'Ошибка при обновлении');
                     return;
                 }
-
                 this.isEditing = false;
                 this.fetchReservations();
             } catch (e) {
                 console.error("Ошибка обновления:", e);
+            }
+        },
+        openConfirmModal(reservationId) {
+            this.confirmReservationId = reservationId;
+            this.confirmCode = '';
+            this.isConfirming = true;
+        },
+        async submitConfirmCode() {
+            const token = localStorage.getItem("auth_token");
+            try {
+                const res = await fetch(`/api/confirm/${this.confirmReservationId}`, {
+                    method: "POST",
+                    headers: {
+                        Authorization: token,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ confirmation_code: this.confirmCode })
+                });
+                if (!res.ok) {
+                    const error = await res.json();
+                    alert(error?.message || 'Ошибка подтверждения');
+                    return;
+                }
+                this.isConfirming = false;
+                this.fetchReservations();
+            } catch (e) {
+                console.error("Ошибка подтверждения:", e);
             }
         },
         getTableImage(reservation) {
@@ -163,7 +205,6 @@ export default {
 
 <style scoped>
 .profile-container {
-    max-width: 700px;
     margin-top: 120px;
     margin-bottom: 50px;
     padding: 20px;
@@ -233,7 +274,8 @@ h3 {
 }
 
 .edit-btn,
-.cancel-btn {
+.cancel-btn,
+.confirm-btn {
     padding: 8px 15px;
     border: none;
     border-radius: 30px;
@@ -263,6 +305,17 @@ h3 {
 
 .cancel-btn:hover {
     background: red;
+    color: white;
+}
+
+.confirm-btn {
+    background: transparent;
+    color: rgb(36, 160, 25);
+    border-color: rgb(36, 160, 25);
+}
+
+.confirm-btn:hover {
+    background: rgb(36, 160, 25);
     color: white;
 }
 
