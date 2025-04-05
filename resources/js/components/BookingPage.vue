@@ -25,17 +25,21 @@
         </form>
 
         <!-- Карточки столиков -->
-        <div v-if="showTables" class="tables-container">
-            <div v-for="table in tables" :key="table.id" class="table-card"
-                :class="{ 'reserved-shadow': table.reserved, 'available-shadow': !table.reserved }">
-                <img :src="table.image" class="table-image" alt="Столик">
-                <div class="table-info">
-                    <h3>Столик №{{ table.id }}</h3>
-                    <p>👥 {{ table.seats }} мест(а)</p>
-                    <button v-if="!table.reserved" @click="reserveTable(table)">Забронировать</button>
+        <div v-if="showTables">
+            <div v-if="tables.length > 0" class="tables-container">
+                <div v-for="table in tables" :key="table.id" class="table-card"
+                    :class="{ 'reserved-shadow': table.reserved, 'available-shadow': !table.reserved }">
+                    <img :src="table.image" class="table-image" alt="Столик">
+                    <div class="table-info">
+                        <h3>Столик №{{ table.id }}</h3>
+                        <p>👥 {{ table.seats }} мест(а)</p>
+                        <button v-if="!table.reserved" @click="reserveTable(table)">Забронировать</button>
+                    </div>
                 </div>
             </div>
+            <p v-else class="no-tables-message">К сожалению, подходящих столиков не найдено.</p>
         </div>
+
     </div>
 </template>
 
@@ -256,6 +260,14 @@ p {
 
 .table-card button:hover {
     background: darkgreen;
+}
+
+.no-tables-message {
+    margin-top: 20px;
+    text-align: center;
+    color: #888;
+    font-size: 18px;
+    font-style: italic;
 }
 
 /* Адаптивность */
