@@ -31,7 +31,7 @@ services:
     networks:
       - app-network
     environment:
-      - VITE_HMR_EXTERNAL_HOST=1
+      - VITE_HMR_EXTERNAL_HOST=194.87.238.106
 
 networks:
   app-network:
