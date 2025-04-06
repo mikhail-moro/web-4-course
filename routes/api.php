@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminTableController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\TableController;
 use App\Http\Middleware\AdminMiddleware;
@@ -12,9 +13,20 @@ use App\Http\Middleware\AuthTokenMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
+
+
+//> Login actions
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
+//<
 
+//> Reset passwort 
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
+//<
+
+//> HZ
 Route::middleware([AuthTokenMiddleware::class])->group(function () {
     Route::get('/user', function (Request $request) {
         return response()->json(['user_id' => $request->auth_user_id]);
@@ -29,14 +41,9 @@ Route::middleware([AuthTokenMiddleware::class])->group(function () {
 
     Route::get('/tables', TableController::class);
 });
+//<
 
-/*
-Route::middleware('auth.token')->get('/user', function (Request $request) {
-    return response()->json(['user_id' => $request->auth_user_id]);
-});
-*/
-
-
+//> HZ
 Route::middleware([AuthTokenMiddleware::class, AdminMiddleware::class])->group(function () {
     Route::post('/admin/users', [AdminUserController::class, 'create']);
     Route::get('/admin/users', [AdminUserController::class, 'read']);
@@ -53,3 +60,5 @@ Route::middleware([AuthTokenMiddleware::class, AdminMiddleware::class])->group(f
     Route::patch('/admin/reservations/{id}', [AdminReservationController::class, 'update']);
     Route::delete('/admin/reservations/{id}', [AdminReservationController::class, 'delete']);
 });
+//<
+

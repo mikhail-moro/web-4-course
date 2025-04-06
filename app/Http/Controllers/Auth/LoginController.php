@@ -22,12 +22,12 @@ class LoginController extends Controller
               'email' => ['Invalid credentials'],
           ]);
       }
-
+      
       $user = Auth::user();
-      #$token = base64_encode($user->id . '|' . now()); Безвременный токен
+        $token = base64_encode($user->id . '|' . now()); 
 
-        $expiry = now()->addHour()->timestamp; // Время истечения 1 час
-        $token = base64_encode($user->id . '|' . $expiry);
+        #$expiry = now()->addHour()->timestamp; // Время истечения 1 час
+        #$token = base64_encode($user->id . '|' . $expiry);
 
 
       return response()->json([
