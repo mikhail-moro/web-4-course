@@ -2,12 +2,18 @@
     <div class="login-card">
         <button class="close-btn" @click="$emit('close')">×</button>
         <h2>Вход</h2>
+
         <form @submit.prevent="login">
             <input v-model="email" type="email" placeholder="Email" required />
             <input v-model="password" type="password" placeholder="Пароль" required />
             <button class="login" type="submit">Войти</button>
         </form>
+
         <p v-if="loginError" class="error">{{ loginError }}</p>
+
+        <button class="forgot-btn" @click="forgotPassword">Забыли пароль?</button>
+
+        <p v-if="resetMessage" class="success">{{ resetMessage }}</p>
     </div>
 </template>
 
@@ -20,6 +26,7 @@ export default {
             email: '',
             password: '',
             loginError: '',
+            resetMessage: ''
         };
     },
     methods: {
@@ -33,19 +40,16 @@ export default {
                 const token = response.data.token;
                 const user = response.data.user;
 
-                console.log('Авторизация прошла успешно:', user);
-
                 // Сохраняем данные в localStorage
                 localStorage.setItem('auth_token', token);
                 localStorage.setItem('user_id', user.id);
                 localStorage.setItem('user_name', user.name);
                 localStorage.setItem('user_email', user.email);
-                localStorage.setItem('user_role', user.role_id); // сохраняем роль
+                localStorage.setItem('user_role', user.role_id);
 
                 this.$emit('auth-changed', true);
                 this.$emit('close');
 
-                // Перенаправление по роли
                 if (user.role_id === 1) {
                     this.$router.push('/admin');
                 } else {
@@ -57,7 +61,31 @@ export default {
                 console.error('Ошибка входа:', error);
             }
         },
-    },
+
+        async forgotPassword() {
+            if (!this.email) {
+                this.loginError = 'Введите email для сброса пароля.';
+                return;
+            }
+
+            try {
+                await axios.post('/api/forgot-password', {
+                    email: this.email
+                });
+
+                this.resetMessage = 'Ссылка для сброса отправлена на почту.';
+                this.loginError = '';
+
+                // Можно сразу открыть форму сброса в новой вкладке (если frontend SPA)
+                // Или оставить это на переход по ссылке из письма
+                // this.$router.push('/reset-password');
+
+            } catch (error) {
+                this.loginError = 'Ошибка при отправке письма. Проверьте email.';
+                console.error('Ошибка сброса пароля:', error);
+            }
+        }
+    }
 };
 </script>
 
@@ -145,4 +173,14 @@ button:hover {
     color: #f1c40f;
     transform: scale(1.2);
 }
+
+button.forgot-btn {
+    margin-top: 15px;
+    background: transparent;
+    border: none;
+    color: #f1c40f;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 </style>

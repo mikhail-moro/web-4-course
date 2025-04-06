@@ -8,6 +8,7 @@ import AdminPanel from './components/AdminPanel.vue';
 import AdminTables from './components/AdminTables.vue';
 import AdminUsers from './components/AdminUsers.vue';
 import AdminReservations from './components/AdminReservations.vue';
+import ResetPassword from './components/ResetPassword.vue';
 
 const routes = [
     { path: '/', component: LandingPage },
@@ -19,6 +20,7 @@ const routes = [
     { path: '/admin/tables', component: AdminTables },
     { path: '/admin/users', component: AdminUsers },
     { path: '/admin/reservations', component: AdminReservations },
+    { path: '/reset-password', component: ResetPassword },
 ];
 
 const router = createRouter({
