@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   deploy:
@@ -26,7 +26,7 @@ jobs:
             echo '${{ secrets.ENV }}' > .env &&
             git config --global --add safe.directory ${{ secrets.VPS_PROJECT_DIR }} &&
             git fetch --all &&
-            git reset --hard origin/main &&
+            git reset --hard origin/develop &&
             docker compose down &&
             docker compose stop &&
             docker compose rm &&
